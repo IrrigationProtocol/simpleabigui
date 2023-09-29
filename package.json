@@ -1,0 +1,23 @@
+{
+  "name": "@irrigationprotocol/simpleabigui",
+  "version": "1.0.0",
+  "description": "Just a simple GUI from our contract ABI",
+  "main": "index.js",
+  "scripts": {
+    "serve": "npx eth-ui-gen serve -c build"
+  },
+  "author": "Super Genius",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IrrigationProtocol/simpleabigui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/IrrigationProtocol/simpleabigui/issues"
+  },
+  "homepage": "https://github.com/IrrigationProtocol/simpleabigui#readme",
+  "devDependencies": {
+    "ethereum-interface-generator": "^1.2.1",
+    "minimatch": "^9.0.3"
+  }
+}
