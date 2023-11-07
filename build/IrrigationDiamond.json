@@ -1,6 +1,7 @@
 {
   "contractName": "IrrigationDiamond",
-  "abi": [
+  "abi": 
+[
     {
       "anonymous": false,
       "inputs": [
@@ -1237,6 +1238,11 @@
     },
     {
       "inputs": [],
+      "name": "NoStoreWater",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "NoTransferEther",
       "type": "error"
     },
@@ -1779,7 +1785,7 @@
             },
             {
               "internalType": "uint256",
-              "name": "feeAmount",
+              "name": "lockedLevel",
               "type": "uint256"
             }
           ],
@@ -1792,17 +1798,33 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "getAuctionFee",
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "waterAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "getAuctionFeeAndLimit",
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "numerator",
+          "name": "listingFee",
           "type": "uint256"
         },
         {
           "internalType": "uint256",
-          "name": "dominator",
+          "name": "successFee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "feeLevel",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "limit",
           "type": "uint256"
         }
       ],
@@ -1944,6 +1966,40 @@
       "inputs": [
         {
           "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "multiplier",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenPrice",
+          "type": "uint256"
+        }
+      ],
+      "name": "getListingFeeForUser",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "feeAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
           "name": "purchaseToken",
           "type": "address"
         },
@@ -1968,6 +2024,25 @@
         {
           "internalType": "uint256",
           "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "getReserveFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "fee",
           "type": "uint256"
         }
       ],
@@ -2385,6 +2460,41 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "NoWithdrawEtherFee",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32[]",
+              "name": "listingFees",
+              "type": "uint32[]"
+            },
+            {
+              "internalType": "uint32[]",
+              "name": "successFees",
+              "type": "uint32[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "limits",
+              "type": "uint256[]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct AuctionFee",
+          "name": "fee",
+          "type": "tuple"
+        }
+      ],
+      "name": "UpdateAuctionFee",
+      "type": "event"
+    },
+    {
       "anonymous": false,
       "inputs": [
         {
@@ -2438,6 +2548,19 @@
       "inputs": [
         {
           "indexed": false,
+          "internalType": "uint256",
+          "name": "percentage",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateFeeForWT",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
           "internalType": "address[]",
           "name": "sellTokens",
           "type": "address[]"
@@ -2450,6 +2573,31 @@
         }
       ],
       "name": "UpdateSellTokens",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        }
+      ],
+      "name": "WithdrawAuctionFee",
       "type": "event"
     },
     {
@@ -2484,13 +2632,6 @@
     },
     {
       "inputs": [],
-      "name": "initIrrigationControl",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "pause",
       "outputs": [],
       "stateMutability": "nonpayable",
@@ -2499,17 +2640,42 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "_newFeeNumerator",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "_newfeeReceiver",
-          "type": "address"
+          "components": [
+            {
+              "internalType": "uint32[]",
+              "name": "listingFees",
+              "type": "uint32[]"
+            },
+            {
+              "internalType": "uint32[]",
+              "name": "successFees",
+              "type": "uint32[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "limits",
+              "type": "uint256[]"
+            }
+          ],
+          "internalType": "struct AuctionFee",
+          "name": "fee",
+          "type": "tuple"
         }
       ],
       "name": "setAuctionFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setFeeForWaterTower",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -2583,6 +2749,29 @@
         }
       ],
       "name": "updateTokenGroup",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawAuctionFee",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -3095,6 +3284,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "getDepositCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint256",
@@ -3506,6 +3708,11 @@
     },
     {
       "inputs": [],
+      "name": "LockedWater",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "NotAutoIrrigate",
       "type": "error"
     },
@@ -3778,6 +3985,25 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getAverageStoredWater",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "ethAmount",
           "type": "uint256"
@@ -3799,6 +4025,37 @@
           "internalType": "uint256",
           "name": "swapAmount",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getLockedUserInfo",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32[8]",
+              "name": "lockedCounts",
+              "type": "uint32[8]"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lockedAmount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct LockedUserInfo",
+          "name": "",
+          "type": "tuple"
         }
       ],
       "stateMutability": "view",
@@ -3853,9 +4110,14 @@
               "type": "uint256"
             },
             {
-              "internalType": "uint256",
+              "internalType": "uint128",
               "name": "endTime",
-              "type": "uint256"
+              "type": "uint128"
+            },
+            {
+              "internalType": "uint128",
+              "name": "startTime",
+              "type": "uint128"
             }
           ],
           "internalType": "struct PoolInfo",
@@ -3874,6 +4136,47 @@
           "internalType": "uint256",
           "name": "totalRewards",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "poolIndex",
+          "type": "uint256"
+        }
+      ],
+      "name": "getUserPoolHistory",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "rewardRate",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "averageStored",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "reserve",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct UserPoolHistory",
+          "name": "userPoolHistory",
+          "type": "tuple"
         }
       ],
       "stateMutability": "view",
@@ -5720,6 +6023,19 @@
       "type": "function"
     },
     {
+      "anonymous": false,
+      "inputs": [],
+      "name": "Upgrade002PoolInfo",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "init001",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "components": [
@@ -5870,7 +6186,7 @@
     }
   ],
   "networks": {
-    "1": {
+    "31337": {
       "events": {},
       "links": {},
       "address": "0x251FAe8f687545BDD462Ba4FCDd7581051740463",
